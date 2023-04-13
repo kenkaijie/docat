@@ -2,6 +2,10 @@
 FROM node:16.14 as build-deps
 COPY web ./
 # fix docker not following symlinks
+
+ARG DOCKER_URL_PATH_PREFIX=/docs
+ENV VUE_APP_BACKEND_PATH_PREFIX=$DOCKER_URL_PATH_PREFIX
+
 COPY doc/getting-started.md ./src/assets/
 RUN yarn install --frozen-lockfile
 RUN yarn lint
@@ -55,5 +59,8 @@ RUN cp docat/nginx/default /etc/nginx/http.d/default.conf
 # Copy the build artifact (.venv)
 COPY --from=backend /app /app/docat
 
+ARG DOCKER_URL_PATH_PREFIX=/docs
+ENV VUE_APP_BACKEND_PATH_PREFIX=$DOCKER_URL_PATH_PREFIX
+
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["sh", "-c", "nginx && .venv/bin/python -m uvicorn --host 0.0.0.0 --port 5000 docat.app:app"]
+CMD ["sh", "-c", "nginx && .venv/bin/python -m uvicorn --host 0.0.0.0 --root-path /docs --port 5000 docat.app:app"]

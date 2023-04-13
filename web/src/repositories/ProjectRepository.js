@@ -1,12 +1,13 @@
 
 const port = process.env.VUE_APP_BACKEND_PORT || location.port
 const host = process.env.VUE_APP_BACKEND_HOST || location.hostname
+const path_prefix = process.env.VUE_APP_BACKEND_PATH_PREFIX || ''
 const semver = require('semver')
 
 const resource = 'doc'
 export default {
 
-  baseURL: `${location.protocol}//${host}:${port}`,
+  baseURL: `${location.protocol}//${host}:${port}${path_prefix}`,
 
   /**
   * Get Config
