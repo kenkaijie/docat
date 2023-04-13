@@ -5,6 +5,13 @@
 [![build](https://github.com/docat-org/docat/workflows/docat%20ci/badge.svg)](https://github.com/docat-org/docat/actions)
 [![Gitter](https://badges.gitter.im/docat-docs-hosting/community.svg)](https://gitter.im/docat-docs-hosting/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+## Note for Modification
+
+This repository is a fork of the original to add path prefix support. If did not mean to
+come here, the original repository can be found at https://github.com/docat-org/docat.
+
+The modifications here are only present for version `0.3.0`.
+
 ## Getting started
 
 The simplest way is to build and run the docker container,
