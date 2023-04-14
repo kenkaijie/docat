@@ -51,7 +51,7 @@ An example can be seen below, where you can use the build arguments `DOCAT_PATH_
 and `DOCAT_BASE_URL` to apply changes needed for hosting behind a proxy.
 
 ```dockerfile
-FROM ghcr.io/ken-docat as base
+FROM ghcr.io/kenkaijie/docat as base
 
 # Regenerated frontend with new prefix paths
 FROM node:16-alpine3.15 as build-new-frontend
@@ -69,7 +69,7 @@ RUN yarn run test:unit
 RUN yarn build
 
 # Copy new webpage to the container, overriding the existing system
-FROM ghcr.io/ken-docat
+FROM ghcr.io/kenkaijie/docat
 
 ARG DOCAT_PATH_PREFIX
 ENV VUE_APP_PATH_PREFIX=${DOCAT_PATH_PREFIX}
@@ -82,7 +82,6 @@ CMD ["sh", "-c", "nginx && .venv/bin/python \
                            --port 5000 \
                            docat.app:app"]
 ```
-
 
 ## Getting started
 
