@@ -73,9 +73,6 @@ jobs:
           - name: ghcr.io
             org: ${{ github.repository_owner }}
             token: GITHUB_TOKEN
-          - name: docker.io
-            org: randombenj
-            token: DOCKERHUB
 
     steps:
       - uses: actions/checkout@v3
