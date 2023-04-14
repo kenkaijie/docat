@@ -12,6 +12,78 @@ come here, the original repository can be found at https://github.com/docat-org/
 
 The modifications here are only present for version `0.3.0`.
 
+### Proxy Support Changes
+
+The following locations require path prefix changes:
+
+- (done) Python API needs to be aware it is running under a proxy, so the front-end
+  requests can be properly performed. (use `root_path` option)
+- The frontend JS must be capable of accepting a path prefix. (Vue config `publicPath`).
+
+This is achieved by setting 2 variables when building:
+
+`VUE_APP_BASE_URL`
+  Used to set the base URL, is a direct replacement for the original HOST and PORT and
+  is used to point to the base URL hosting this web server (and API). It does not
+  currently support hosting the frontend and backend separately.
+`VUE_APP_PATH_PREFIX`
+  Used if this site is hosted on a non-root portion of the web server. Will update all
+  references correctly.
+
+The caveat here is that when building the container, the system will take a snapshot of
+the variables when `yarn build` is called.
+
+#### How to Configure
+
+The main configuration that needs to be done is to create a custom docker image that is
+based on this one. In the example below, the image has been built (without unset
+`VUE_APP_BASE_URL` and `VUE_APP_PATH_PREFIX`) and is called `ken-docat`.
+
+The key points are:
+  - The image provides the source code to the website at the location `/app/web-src/` to
+    allow for modification.
+  - You will need to set the environment to use the path prefix you wish to set and
+    rebuild the container.
+  - The option `--root-path` must be provided to the `CMD` by overriding the existing
+    parameter.
+
+An example can be seen below, where you can use the build arguments `DOCAT_PATH_PREFIX`
+and `DOCAT_BASE_URL` to apply changes needed for hosting behind a proxy.
+
+```dockerfile
+FROM ghcr.io/ken-docat as base
+
+# Regenerated frontend with new prefix paths
+FROM node:16-alpine3.15 as build-new-frontend
+COPY --from=base /app/web-src/ ./
+
+ARG DOCAT_PATH_PREFIX
+ARG DOCAT_BASE_URL
+
+ENV VUE_APP_PATH_PREFIX=$DOCAT_PATH_PREFIX
+ENV VUE_APP_BASE_URL=$DOCAT_BASE_URL
+
+RUN yarn install --frozen-lockfile
+RUN yarn lint
+RUN yarn run test:unit
+RUN yarn build
+
+# Copy new webpage to the container, overriding the existing system
+FROM ghcr.io/ken-docat
+
+ARG DOCAT_PATH_PREFIX
+ENV VUE_APP_PATH_PREFIX=${DOCAT_PATH_PREFIX}
+COPY --from=build-new-frontend /dist /var/www/html
+
+CMD ["sh", "-c", "nginx && .venv/bin/python \
+                           -m uvicorn \
+                           --root-path ${VUE_APP_PATH_PREFIX} \
+                           --host 0.0.0.0 \
+                           --port 5000 \
+                           docat.app:app"]
+```
+
+
 ## Getting started
 
 The simplest way is to build and run the docker container,

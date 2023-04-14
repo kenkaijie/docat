@@ -1,6 +1,8 @@
 const path = require('path')
+const prefixPath = process.env.VUE_APP_PATH_PREFIX || '/'
 
 module.exports = {
+  publicPath: prefixPath,
   configureWebpack: {
     devServer: {
       contentBase: path.join(__dirname, 'dist'),

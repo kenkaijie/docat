@@ -16,13 +16,11 @@ export default {
   },
   methods: {
     help() {
-      const port = process.env.VUE_APP_BACKEND_PORT || location.port
-      const host = process.env.VUE_APP_BACKEND_HOST || location.hostname
-      const path_prefix = process.env.VUE_APP_BACKEND_PATH_PREFIX || ''
-
+      const base_url = process.env.VUE_APP_BASE_URL || `${location.origin}`;
+      const path_prefix = process.env.VUE_APP_PATH_PREFIX || '';
       return help.replace(
         /http:\/\/localhost:8000/g,
-        `${location.protocol}//${host}${port !== '' ? ':' + port : ''}${path_prefix}`
+        base_url + path_prefix
       );
     }
   }

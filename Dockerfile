@@ -1,12 +1,13 @@
 # building frontend
-FROM node:16.14 as build-deps
-COPY web ./
+FROM scratch as web-src
+
+COPY web /web-src/
 # fix docker not following symlinks
+COPY doc/getting-started.md /web-src/src/assets/
 
-ARG DOCKER_URL_PATH_PREFIX=/docs
-ENV VUE_APP_BACKEND_PATH_PREFIX=$DOCKER_URL_PATH_PREFIX
+FROM node:16-alpine3.15 as build-deps
+COPY --from=web-src /web-src/ ./
 
-COPY doc/getting-started.md ./src/assets/
 RUN yarn install --frozen-lockfile
 RUN yarn lint
 RUN yarn run test:unit
@@ -54,13 +55,13 @@ COPY --from=build-deps /dist /var/www/html
 COPY docat /app/docat
 WORKDIR /app/docat
 
+# TODO: Find a better way to also copy the web source over
+COPY --from=web-src /web-src/ /app/web-src/
+
 RUN cp docat/nginx/default /etc/nginx/http.d/default.conf
 
 # Copy the build artifact (.venv)
 COPY --from=backend /app /app/docat
 
-ARG DOCKER_URL_PATH_PREFIX=/docs
-ENV VUE_APP_BACKEND_PATH_PREFIX=$DOCKER_URL_PATH_PREFIX
-
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["sh", "-c", "nginx && .venv/bin/python -m uvicorn --host 0.0.0.0 --root-path /docs --port 5000 docat.app:app"]
+CMD ["sh", "-c", "nginx && .venv/bin/python -m uvicorn --host 0.0.0.0 --port 5000 docat.app:app"]

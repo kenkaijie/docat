@@ -14,8 +14,7 @@ Like this configuration for the host `127.0.0.1`
 and the port `1337`.
 
 ```sh
-VUE_APP_BACKEND_PORT=1337
-VUE_APP_BACKEND_HOST=127.0.0.1
+VUE_APP_BASE_URL="http://127.0.0.1:1337"
 ```
 
 ```sh
@@ -47,6 +46,13 @@ Just add your custom html header to the `/var/www/html/config.json` file.
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
+#### Path Prefixes
+
+The build will use `VUE_APP_PATH_PREFIX` to handle cases where the server is hosted
+behind a proxy.
+
+This only works in certain circumstances with specific proxy settings, see the top-level
+README.md [here](../README.md) for more information.
 
 ## Development
 
